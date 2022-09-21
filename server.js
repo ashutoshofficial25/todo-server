@@ -17,7 +17,7 @@ const app = express();
 //db connection
 
 mongoose
-  .connect(process.env.DATABASE, {
+  .connect(process.env.DB, {
     useNewUrlParser: true,
   })
   .then(() => console.log("Database Connected"))
