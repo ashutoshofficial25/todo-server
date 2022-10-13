@@ -49,21 +49,26 @@ exports.login = async (req, res) => {
     if (!user) return res.status(400).send("No user foud with this Email");
     const match = await comparePassword(password, user.password);
     //create jwt
+    if (match) {
+      const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: "7d",
+      });
 
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+      //send user p
+      user.password = undefined;
+      //send token in cookie
+      res.cookie("token", token, {
+        httpOnly: true,
+        // secure :true //only workd in prod
+      });
 
-    //send user p
-    user.password = undefined;
-    //send token in cookie
-    res.cookie("token", token, {
-      httpOnly: true,
-      // secure :true //only workd in prod
-    });
-
-    //send user as json response
-    res.json(user);
+      //send user as json response
+      res.json(user);
+    } else {
+      return res
+        .status(400)
+        .send(" Email or Password didn't match!, Please Login Again");
+    }
   } catch (err) {
     console.log(err);
     return res.status(400).send("Error!, Try again");
